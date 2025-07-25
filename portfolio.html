@@ -1,0 +1,204 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio - Miguel Angel Ortiz Marin</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        header {
+            background-color: #000;
+            border-bottom: 4px solid #00ff00;
+            text-align: center;
+            padding: 2rem;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        header p {
+            margin: 0.5rem 0;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+            border: 2px solid #00ff00;
+            padding: 1rem;
+            background-color: #111;
+        }
+        .section h2 {
+            color: #00ff00;
+            border-bottom: 2px dashed #00ff00;
+            padding-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .logo {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .logo img {
+            max-width: 200px;
+            height: auto;
+            filter: drop-shadow(0 0 10px #00ff00);
+        }
+        .skills ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .skills li {
+            background-color: #00ff00;
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 3px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .project-button {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .project-button a {
+            background-color: #00ff00;
+            color: #000;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border: 2px solid #00ff00;
+            border-radius: 3px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .project-button a:hover {
+            background-color: #000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+        }
+        .contact {
+            text-align: center;
+        }
+        .contact a {
+            color: #00ff00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .contact a:hover {
+            text-decoration: underline;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        footer {
+            background-color: #000;
+            color: #00ff00;
+            text-align: center;
+            padding: 1rem;
+            border-top: 4px solid #00ff00;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Miguel Angel Ortiz Marin</h1>
+        <p>Técnico en Desarrollador de Software</p>
+    </header>
+
+    <div class="container">
+        <div class="section about">
+            <h2>Sobre Mí</h2>
+            <p>Soy un apasionado desarrollador de software con experiencia en la creación de soluciones tecnológicas innovadoras. Mi enfoque está en escribir código limpio y eficiente, siempre buscando aprender y aplicar las mejores prácticas en el desarrollo web.</p>
+        </div>
+
+        <div class="logo">
+            <img src="logo-placeholder.png" alt="Logo Personal">
+        </div>
+
+        <div class="section skills">
+            <h2>Habilidades</h2>
+            <ul>
+                <li>SQL</li>
+                <li>HTML</li>
+                <li>CSS</li>
+                <li>JavaScript</li>
+            </ul>
+        </div>
+
+        <div class="project-button">
+            <a href="#proyectos">Proyectos</a>
+        </div>
+
+        <div class="section contact">
+            <h2>Contacto</h2>
+            <p><a href="mailto:miguel.ortizmarin@inemjose.edu.co">miguel.ortizmarin@inemjose.edu.co</a></p>
+        </div>
+    </div>
+
+    <footer>
+        <p>@2025 Miguel Angel Ortiz. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
